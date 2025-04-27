@@ -32,6 +32,7 @@ public class Tasks {
         JButton addButton = new JButton("Add Task");
         JButton saveButton = new JButton("Save Tasks");
         JButton loadButton = new JButton("Load Tasks");
+        JButton clearButton = new JButton("Clear Taskboard");
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(taskField, BorderLayout.CENTER);
@@ -40,6 +41,7 @@ public class Tasks {
         JPanel controlPanel = new JPanel();
         controlPanel.add(saveButton);
         controlPanel.add(loadButton);
+        controlPanel.add(clearButton);
 
         frame.getContentPane().add(inputPanel, BorderLayout.NORTH);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -67,6 +69,9 @@ public class Tasks {
         });
 
         loadTasks(); // Load tasks on startup
+
+        // Clear taskboard button listener
+        clearButton.addActionListener(e -> clearTasks());
 
         frame.setVisible(true);
     }
@@ -134,16 +139,14 @@ public class Tasks {
             }
 
             // Refresh UI
-            taskPanel.revalidate();
-            taskPanel.repaint();
+            refreshUI();
         });
 
         // Delete task
         deleteButton.addActionListener(e -> {
             taskPanel.remove(taskItemPanel);
             tasks.removeIf(t -> t.panel == taskItemPanel);
-            taskPanel.revalidate();
-            taskPanel.repaint();
+            refreshUI();
         });
 
         // Set initial strike-through
@@ -151,8 +154,7 @@ public class Tasks {
             label.setText("<html><strike>" + text + "</strike></html>");
         }
 
-        taskPanel.revalidate();
-        taskPanel.repaint();
+        refreshUI();
     }
 
     // Save tasks to file
@@ -184,6 +186,19 @@ public class Tasks {
         } catch (IOException e) {
             // File might not exist yet — that's okay
         }
+    }
+
+    // Clear all tasks from current taskboard
+    private void clearTasks() {
+        tasks.clear();
+        taskPanel.removeAll();
+        refreshUI();
+    }
+
+    // Refreshes the UI / taskboard
+    private void refreshUI() {
+        taskPanel.revalidate();
+        taskPanel.repaint();
     }
 
     // Helper class to represent each task item
