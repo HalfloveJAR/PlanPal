@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class TaskManager {
     private static final TaskManager instance = new TaskManager();
-    private final ArrayList<TaskItem> tasks = new ArrayList<>();
+    public final ArrayList<TaskItem> tasks = new ArrayList<>();
     private final String FILE_NAME = "tasks.txt";
     private JPanel taskPanel;
 
@@ -49,7 +49,7 @@ public class TaskManager {
         taskItemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         taskItemPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        TaskItem newTask = new TaskItem(text, priority, dueDate, checkBox, taskItemPanel);
+        TaskItem newTask = new TaskItem(text, priority, dueDate, checkBox, label, priorityLabel, taskItemPanel);
         tasks.add(newTask);
 
         checkBox.addActionListener(e -> {
@@ -191,5 +191,15 @@ public class TaskManager {
             taskPanel.revalidate();
             taskPanel.repaint();
         }
+    }
+
+    boolean isDueWithin24Hours(LocalDate dueDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        return (dueDate.isAfter(today.minusDays(1)) && !dueDate.isAfter(tomorrow));
+    }
+
+    boolean isOverdue(LocalDate dueDate) {
+        return dueDate.isBefore(LocalDate.now());
     }
 }

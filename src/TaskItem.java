@@ -10,14 +10,46 @@ public class TaskItem {
     JLabel label;
     JLabel priorityLabel;
 
-    TaskItem(String text, Priority priority, LocalDate dueDate, JCheckBox checkBox, JPanel panel) {
+    TaskItem(String text, Priority priority, LocalDate dueDate, JCheckBox checkBox, JLabel label, JLabel priorityLabel, JPanel panel) {
         this.text = text;
         this.priority = priority;
         this.dueDate = dueDate;
         this.checkBox = checkBox;
+        this.label = label;
+        this.priorityLabel = priorityLabel;
         this.panel = panel;
-
-        this.label = (JLabel) ((JPanel) panel.getComponent(0)).getComponent(1);
-        this.priorityLabel = (JLabel) ((JPanel) panel.getComponent(0)).getComponent(2);
     }
+
+    public String getText() {
+        return text;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public boolean isCompleted() {
+        return checkBox.isSelected();
+    }
+
+    public JCheckBox getCheckBox() {
+        return checkBox;
+    }
+
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    public JLabel getLabel() {
+        return label;
+    }
+
+    public JLabel getPriorityLabel() {
+        return priorityLabel;
+    }
+
 }

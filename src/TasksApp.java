@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -56,9 +55,27 @@ public class TasksApp {
 
         TaskManager.getInstance().setTaskPanel(taskPanel);
         TaskManager.getInstance().loadTasks();
+
         refreshUI();
 
         frame.setVisible(true);
+
+        for (TaskItem task : TaskManager.getInstance().tasks) {
+            if (!task.isCompleted() && task.getDueDate() != null) {
+                if (TaskManager.getInstance().isDueWithin24Hours(task.getDueDate())) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Reminder: Task \"" + task.getText() + "\" is due soon!",
+                            "Upcoming Task Due",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                if (TaskManager.getInstance().isOverdue(task.getDueDate())) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Reminder: Task \"" + task.getText() + "\" is overdue!",
+                            "Task Overdue!",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     private void showAddTaskDialog() {
