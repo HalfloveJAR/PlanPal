@@ -22,7 +22,7 @@ public class LoginPage extends JFrame {
         passwordField = new JPasswordField();
         loginButton = new JButton("Login");
 
-        contentPanel.add(new JLabel("Username:"));
+        contentPanel.add(new JLabel("Email:"));
         contentPanel.add(emailField);
         contentPanel.add(new JLabel("Password:"));
         contentPanel.add(passwordField);
@@ -62,7 +62,7 @@ public class LoginPage extends JFrame {
     }
 
     private void showLoginError() {
-        JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String[] args) {
