@@ -3,18 +3,14 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-public class TasksApp {
+public class TaskBoard {
     private final JFrame frame;
     private final JPanel taskPanel;
     private final JButton addButton, saveButton, loadButton, clearButton;
     private final JScrollPane scrollPane;
     private final JPanel controlPanel, inputPanel;
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(TasksApp::new);
-    }
-
-    public TasksApp() {
+    public TaskBoard() {
         frame = new JFrame("PlanPal");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 500);
