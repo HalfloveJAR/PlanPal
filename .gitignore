@@ -30,4 +30,4 @@ bin/
 
 ### Project ###
 tasks.txt
-src/.env
+/src/.env
