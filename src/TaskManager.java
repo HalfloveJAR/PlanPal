@@ -7,8 +7,9 @@ import java.util.ArrayList;
 public class TaskManager {
     private static final TaskManager instance = new TaskManager();
     public final ArrayList<TaskItem> tasks = new ArrayList<>();
-    private final String FILE_NAME = "tasks.txt";
     private JPanel taskPanel;
+
+    public TaskBoard activeTaskBoard = null;
 
     private TaskManager() {}
 
@@ -23,6 +24,8 @@ public class TaskManager {
     public ArrayList<TaskItem> getTasks() {
         return tasks;
     }
+
+    private String FILE_NAME = "tasks.txt";
 
     public void addTask(String text, Priority priority, LocalDate dueDate, boolean done) {
         JCheckBox checkBox = new JCheckBox();
@@ -172,6 +175,24 @@ public class TaskManager {
         tasks.clear();
         tasks.addAll(incomplete);
         tasks.addAll(complete);
+    }
+
+    public void createNewTaskboard() {
+        int index = 2;
+        while (true) {
+            String fileName = "tasks" + index + ".txt";
+            File file = new File(fileName);
+            if (!file.exists()) {
+                FILE_NAME = fileName;
+                tasks.clear();
+                taskPanel.removeAll();
+                saveTasks(); // create the new file immediately
+                TaskManager.getInstance().activeTaskBoard.refreshUI();
+                JOptionPane.showMessageDialog(TaskManager.getInstance().activeTaskBoard.frame, "New taskboard created: " + FILE_NAME);
+                break;
+            }
+            index++;
+        }
     }
 
     private int priorityValue(Priority priority) {
