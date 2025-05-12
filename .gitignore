@@ -29,5 +29,5 @@ bin/
 .DS_Store
 
 ### Project ###
-tasks**.txt
+taskboards/**
 .env

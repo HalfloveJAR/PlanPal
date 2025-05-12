@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class TaskManager {
     private static final TaskManager instance = new TaskManager();
+    public static final File TASKBOARD_DIR = new File("taskboards");
     public final ArrayList<TaskItem> tasks = new ArrayList<>();
     private JPanel taskPanel;
 
@@ -14,6 +15,9 @@ public class TaskManager {
     private TaskManager() {}
 
     public static TaskManager getInstance() {
+        if (!TASKBOARD_DIR.exists()) {
+            TASKBOARD_DIR.mkdirs(); // create taskboards directory if it doesn't exist
+        }
         return instance;
     }
 
@@ -25,7 +29,7 @@ public class TaskManager {
         return tasks;
     }
 
-    private String FILE_NAME = "tasks.txt";
+    private String currentFileName = "tasks.txt";
 
     public void addTask(String text, Priority priority, LocalDate dueDate, boolean done) {
         JCheckBox checkBox = new JCheckBox();
@@ -111,7 +115,7 @@ public class TaskManager {
     }
 
     public void saveTasks() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(TASKBOARD_DIR, currentFileName)))) {
             for (TaskItem task : tasks) {
                 boolean isDone = task.checkBox.isSelected();
                 String dueDateStr = (task.dueDate != null) ? task.dueDate.toString() : "";
@@ -124,7 +128,7 @@ public class TaskManager {
     }
 
     public void loadTasks() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(TASKBOARD_DIR, currentFileName)))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|", 4);
@@ -177,22 +181,35 @@ public class TaskManager {
         tasks.addAll(complete);
     }
 
-    public void createNewTaskboard() {
-        int index = 2;
-        while (true) {
-            String fileName = "tasks" + index + ".txt";
-            File file = new File(fileName);
-            if (!file.exists()) {
-                FILE_NAME = fileName;
-                tasks.clear();
-                taskPanel.removeAll();
-                saveTasks(); // create the new file immediately
-                TaskManager.getInstance().activeTaskBoard.refreshUI();
-                JOptionPane.showMessageDialog(TaskManager.getInstance().activeTaskBoard.frame, "New taskboard created: " + FILE_NAME);
-                break;
+    public void createNewTaskboardFromList(JFrame frame) {
+        String name = JOptionPane.showInputDialog(frame, "Enter a name for the new taskboard:");
+
+        if (name != null && !name.trim().isEmpty()) {
+            // Sanitize name: remove illegal filename characters
+            name = name.trim().replaceAll("[^a-zA-Z0-9-_]", "_");
+            String fileName = name + ".txt";
+            File newFile = new File(TASKBOARD_DIR, fileName);
+
+            if (newFile.exists()) {
+                JOptionPane.showMessageDialog(frame, "A taskboard with that name already exists.");
+            } else {
+                try {
+                    if (newFile.createNewFile()) {
+                        openTaskboard(fileName, frame);
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Failed to create new taskboard.");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(frame, "Error: " + e.getMessage());
+                }
             }
-            index++;
         }
+    }
+
+    public void openTaskboard(String fileName, JFrame frame) {
+        frame.dispose();
+        currentFileName = fileName;
+        activeTaskBoard = new TaskBoard();
     }
 
     private int priorityValue(Priority priority) {

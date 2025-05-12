@@ -58,7 +58,7 @@ public class LoginPage extends JFrame {
     private void showLoginSuccess() {
         JOptionPane.showMessageDialog(this, "Login successful!");
         dispose(); // Close login window
-        TaskManager.getInstance().activeTaskBoard = new TaskBoard(); // Open taskboard after closing login page
+        SwingUtilities.invokeLater(TaskBoardList::new);
     }
 
     private void showLoginError() {

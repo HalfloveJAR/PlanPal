@@ -41,10 +41,6 @@ public class FirebaseAuthHelper {
                 response.append(input);
             }
 
-            // DEBUG
-            System.out.println("Firebase JSON object response:");
-            System.out.println(response.toString());
-
             // Return the response as a JSON object
             return new JSONObject(response.toString());
         } catch (Exception e) {
