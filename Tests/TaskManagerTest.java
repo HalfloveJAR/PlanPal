@@ -14,6 +14,7 @@ public class TaskManagerTest {
 
         assertEquals(1, manager.getTasks().size());
         assertEquals("Test Task", manager.getTasks().get(0).getText());
+
     }
 
     @Test
