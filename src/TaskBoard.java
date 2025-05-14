@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class TaskBoard {
-    private final JFrame frame;
+    public final JFrame frame;
     private final JPanel taskPanel;
-    private final JButton addButton, saveButton, loadButton, clearButton;
+    private final JButton addButton, saveButton, loadButton, clearButton, returnToListButton;
     private final JScrollPane scrollPane;
     private final JPanel controlPanel, inputPanel;
 
@@ -23,6 +23,8 @@ public class TaskBoard {
         saveButton = new JButton("Save Tasks");
         loadButton = new JButton("Load Tasks");
         clearButton = new JButton("Clear Taskboard");
+        returnToListButton = new JButton("Return to List");
+
 
         inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(addButton, BorderLayout.CENTER);
@@ -31,6 +33,7 @@ public class TaskBoard {
         controlPanel.add(saveButton);
         controlPanel.add(loadButton);
         controlPanel.add(clearButton);
+        controlPanel.add(returnToListButton);
 
         frame.getContentPane().add(inputPanel, BorderLayout.NORTH);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -48,6 +51,13 @@ public class TaskBoard {
             TaskManager.getInstance().clearTasks();
             refreshUI();
         });
+        returnToListButton.addActionListener(e -> {
+            frame.dispose();
+            TaskManager.getInstance().activeTaskBoard = null;
+            TaskManager.getInstance().tasks.clear();
+            SwingUtilities.invokeLater(TaskBoardList::new);
+        });
+
 
         TaskManager.getInstance().setTaskPanel(taskPanel);
         TaskManager.getInstance().loadTasks();
@@ -110,7 +120,7 @@ public class TaskBoard {
         }
     }
 
-    private void refreshUI() {
+    public void refreshUI() {
         taskPanel.removeAll();
         TaskManager.getInstance().sortTasks();
 

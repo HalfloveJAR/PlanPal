@@ -13,10 +13,9 @@ public class LoginPage extends JFrame {
     public LoginPage() {
         setTitle("PlanPal - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(426, 280);
+        setSize(426, 240);
         setLocationRelativeTo(null); // Center on screen
-
-        JPanel contentPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        JPanel contentPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         emailField = new JTextField();
@@ -37,15 +36,20 @@ public class LoginPage extends JFrame {
             String email = emailField.getText();
             String pass = new String(passwordField.getPassword());
 
+            // Attempt to login using Firebase
             try {
+                // Call FirebaseAuthHelper to sign in
                 JSONObject result = FirebaseAuthHelper.signIn(email, pass);
                 String idToken = result.getString("idToken");
                 String uid = result.getString("localId");
 
+                // Clear password field
                 passwordField.setText("");
 
+                // If no errors occurred, login was successful
                 showLoginSuccess();
             } catch (Exception ex) {
+                // If we run into an error, the login was not successful
                 ex.printStackTrace();
                 showLoginError();
             }
@@ -67,14 +71,13 @@ public class LoginPage extends JFrame {
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-//**UNIT 8 NEW END OF CHANGES**
         setVisible(true);
     }
 
     private void showLoginSuccess() {
         JOptionPane.showMessageDialog(this, "Login successful!");
         dispose(); // Close login window
-        SwingUtilities.invokeLater(TaskBoard::new); // Open taskboard
+        SwingUtilities.invokeLater(TaskBoardList::new);
     }
 
     private void showLoginError() {

@@ -6,7 +6,7 @@ import org.json.JSONObject;
 public class FirebaseAuthHelper {
     private static final String API_KEY = System.getenv("FIREBASE_API_KEY");
 
-    // Sign in method (unchanged)
+    // Method to sign in a user using email and password
     public static JSONObject signIn(String email, String password) throws Exception {
         String url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
 
@@ -34,9 +34,7 @@ public class FirebaseAuthHelper {
                 response.append(input);
             }
 
-            System.out.println("Firebase JSON object response:");
-            System.out.println(response.toString());
-
+            // Return the response as a JSON object
             return new JSONObject(response.toString());
         } catch (Exception e) {
             throw new Exception("Error during sign-in: " + e.getMessage());
