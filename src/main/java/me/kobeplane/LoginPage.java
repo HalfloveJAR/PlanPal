@@ -23,21 +23,24 @@ public class LoginPage extends JFrame {
         emailField = new JTextField();
         passwordField = new JPasswordField();
         loginButton = new JButton("Login");
+        JButton registerButton = new JButton("Register"); // ** UNIT 8 NEW **
 
         contentPanel.add(new JLabel("Email:"));
         contentPanel.add(emailField);
         contentPanel.add(new JLabel("Password:"));
         contentPanel.add(passwordField);
         contentPanel.add(loginButton);
+        contentPanel.add(registerButton); // ** UNIT 8 NEW: register button  **
         add(contentPanel);
 
+        // Existing login logic
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String pass = new String(passwordField.getPassword());
 
             // Attempt to login using Firebase
             try {
-                // Call me.kobeplane.FirebaseAuthHelper to sign in
+                // Call FirebaseAuthHelper to sign in
                 JSONObject result = FirebaseAuthHelper.signIn(email, pass);
                 String idToken = result.getString("idToken");
                 String uid = result.getString("localId");
@@ -52,7 +55,23 @@ public class LoginPage extends JFrame {
                 ex.printStackTrace();
                 showLoginError();
             }
+        });
 
+        // **UNIT 8 NEW: Register logic**
+        registerButton.addActionListener(e -> {
+            String email = emailField.getText();
+            String pass = new String(passwordField.getPassword());
+
+            try {
+                JSONObject result = FirebaseAuthHelper.signUp(email, pass);
+                String uid = result.getString("localId");
+
+                JOptionPane.showMessageDialog(this, "Registration successful! You can now log in.");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Registration failed: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
         setVisible(true);
     }
