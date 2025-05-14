@@ -2,7 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.kobeplane</groupId>
-  <artifactId>PlanPal</artifactId>
+  <artifactId>planpal</artifactId>
+  <name>Plan Pal</name>
   <version>1.0</version>
   <build>
     <finalName>planpal-uber-jar</finalName>
@@ -28,7 +29,7 @@
               <transformers>
                 <transformer />
                 <transformer>
-                  <mainClass>me.kobeplane.LoginPage</mainClass>
+                  <mainClass>me.kobeplane.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>
