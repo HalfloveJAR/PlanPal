@@ -1,3 +1,5 @@
+package me.kobeplane;
+
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -35,7 +37,7 @@ public class LoginPage extends JFrame {
 
             // Attempt to login using Firebase
             try {
-                // Call FirebaseAuthHelper to sign in
+                // Call me.kobeplane.FirebaseAuthHelper to sign in
                 JSONObject result = FirebaseAuthHelper.signIn(email, pass);
                 String idToken = result.getString("idToken");
                 String uid = result.getString("localId");

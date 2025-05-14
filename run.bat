@@ -9,4 +9,4 @@ REM Compile the Java source files and include the classpath
 javac -cp %CLASSPATH% -d out src\*.java
 
 REM Run the main class with the classpath including both compiled classes and the JSON jar
-java -cp out;%CLASSPATH% LoginPage
+java -cp out;%CLASSPATH% me.kobeplane.LoginPage

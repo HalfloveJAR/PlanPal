@@ -1,3 +1,5 @@
+package me.kobeplane;
+
 import javax.swing.*;
 import java.time.LocalDate;
 
