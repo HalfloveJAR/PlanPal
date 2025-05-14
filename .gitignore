@@ -30,4 +30,5 @@ bin/
 
 ### Project ###
 taskboards/**
-.env
+src/resources/.env
+target
