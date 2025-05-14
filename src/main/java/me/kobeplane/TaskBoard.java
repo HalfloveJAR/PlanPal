@@ -1,3 +1,5 @@
+package me.kobeplane;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
@@ -93,7 +95,7 @@ public class TaskBoard {
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Task Name:"));
         panel.add(taskNameField);
-        panel.add(new JLabel("Priority:"));
+        panel.add(new JLabel("me.kobeplane.Priority:"));
         panel.add(priorityBox);
         panel.add(new JLabel("Due Date (optional, yyyy-MM-dd):"));
         panel.add(dueDateField);

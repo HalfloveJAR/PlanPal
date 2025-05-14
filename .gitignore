@@ -2,6 +2,7 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.idea
 
 ### Eclipse ###
 .apt_generated
@@ -30,4 +31,5 @@ bin/
 
 ### Project ###
 taskboards/**
-.env
+src/resources/.env
+target

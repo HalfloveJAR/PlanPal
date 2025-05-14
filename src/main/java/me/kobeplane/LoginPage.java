@@ -1,3 +1,5 @@
+package me.kobeplane;
+
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -84,7 +86,4 @@ public class LoginPage extends JFrame {
         JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginPage::new);
-    }
 }
