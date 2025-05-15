@@ -7,18 +7,14 @@ public class UserData {
     @DatabaseField(canBeNull = false, generatedId = true)
     private int userId;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, unique = true)
     private String email;
 
     public UserData() {}
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setEmail(String email) { this.email = email; }
 
     public int getUserId() {
         return userId;

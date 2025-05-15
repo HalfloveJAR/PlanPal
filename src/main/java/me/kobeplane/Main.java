@@ -3,12 +3,10 @@ package me.kobeplane;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import io.github.cdimascio.dotenv.Dotenv;
-import me.kobeplane.data.TaskboardsService;
-import me.kobeplane.data.TasksData;
-import me.kobeplane.data.TasksService;
-import me.kobeplane.data.UserService;
+import me.kobeplane.data.*;
 
 import javax.swing.*;
+import java.sql.SQLException;
 
 public class Main {
 
@@ -16,6 +14,8 @@ public class Main {
     static UserService userService;
     static TaskboardsService taskboardsService;
     static TasksService tasksService;
+
+    static UserData userData;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(LoginPage::new);
@@ -42,5 +42,21 @@ public class Main {
             }
         }
     }
+
+    static UserData getValidUserData(String email) throws SQLException {
+        UserData userData = userService.getUserData(email);
+        if (userData == null) {
+            userService.addUser(email);
+            userData = userService.getUserData(email);
+        }
+        return userData;
+    }
+
+    /*static TaskboardsData getValidTaskboardData(String ID) throws SQLException {
+        TaskboardsData taskboardsData = taskboardsService.getTaskboardData(ID);
+        if (taskboardsData == null) {
+            taskboardsService.add
+        }
+    }*/
 
 }

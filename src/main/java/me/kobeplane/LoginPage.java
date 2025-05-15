@@ -80,6 +80,11 @@ public class LoginPage extends JFrame {
         JOptionPane.showMessageDialog(this, "Login successful!");
         dispose(); // Close login window
         SwingUtilities.invokeLater(TaskBoardList::new);
+        try {
+            Main.userData = Main.getValidUserData(emailField.getText());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showLoginError() {

@@ -1,5 +1,7 @@
 package me.kobeplane;
 
+import me.kobeplane.data.TaskboardsData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -117,6 +119,13 @@ public class TaskManager {
     }
 
     public void saveTasks() {
+        try {
+            for (TaskItem task : tasks) {
+                boolean isDone = task.checkBox.isSelected();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(TASKBOARD_DIR, currentFileName)))) {
             for (TaskItem task : tasks) {
                 boolean isDone = task.checkBox.isSelected();
@@ -187,8 +196,23 @@ public class TaskManager {
         String name = JOptionPane.showInputDialog(frame, "Enter a name for the new taskboard:");
 
         if (name != null && !name.trim().isEmpty()) {
+
+            try {
+                TaskboardsData taskboardsData = Main.taskboardsService.addTaskboard(name.trim(), Main.userData);
+                System.out.println(taskboardsData.getTaskboardId());
+                System.out.println(taskboardsData.getUserId());
+                System.out.println(taskboardsData.getName());
+                java.util.List<TaskboardsData> boards = Main.taskboardsService.getTaskboardsForUser(Main.userData);
+
+                for (TaskboardsData board : boards) {
+                    System.out.println(board.getName());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             // Sanitize name: remove illegal filename characters
-            name = name.trim().replaceAll("[^a-zA-Z0-9-_]", "_");
+            /*name = name.trim().replaceAll("[^a-zA-Z0-9-_]", "_");
             String fileName = name + ".txt";
             File newFile = new File(TASKBOARD_DIR, fileName);
 
@@ -204,7 +228,7 @@ public class TaskManager {
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(frame, "Error: " + e.getMessage());
                 }
-            }
+            }*/
         }
     }
 

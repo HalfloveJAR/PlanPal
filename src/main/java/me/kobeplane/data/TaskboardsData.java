@@ -10,7 +10,7 @@ public class TaskboardsData {
     @DatabaseField(canBeNull = false, foreign = true)
     private UserData userId;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, unique = true)
     private String name;
 
     public TaskboardsData() {}
@@ -25,6 +25,14 @@ public class TaskboardsData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public UserData getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UserData userId) {
+        this.userId = userId;
     }
 
 }
