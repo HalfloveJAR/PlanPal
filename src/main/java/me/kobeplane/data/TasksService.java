@@ -44,4 +44,9 @@ public class TasksService {
         return qb.query();
     }
 
+    // Delete a task from the database entirely
+    public void deleteTask(TasksData task) throws SQLException {
+        tasksDataDao.deleteById(String.valueOf(task.getTaskId()));
+    }
+
 }

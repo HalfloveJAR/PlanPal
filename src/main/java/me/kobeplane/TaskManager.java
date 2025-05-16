@@ -74,6 +74,7 @@ public class TaskManager {
         });
 
         deleteButton.addActionListener(e -> {
+            deleteDatabaseTask(newTask);
             tasks.remove(newTask);
             refreshPanel();
         });
@@ -178,6 +179,30 @@ public class TaskManager {
             taskPanel.removeAll();
             taskPanel.revalidate();
             taskPanel.repaint();
+        }
+    }
+
+    public void deleteDatabaseTask(TaskItem task) {
+        try {
+            Date convertedDate = (task.dueDate == null)
+                    ? null
+                    : Date.from(task.dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            TasksData taskData = new TasksData();
+            taskData.setTaskId(task.id);
+            taskData.setName(task.text.trim());
+            taskData.setPriority(task.priority.toString());
+            taskData.setDone(task.checkBox.isSelected());
+            taskData.setDueDate(convertedDate);
+            taskData.setTaskboardId(currentTaskboard);
+            Main.tasksService.deleteTask(taskData);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void deleteAllDatabaseTasks() {
+        for (TaskItem task : tasks) {
+            deleteDatabaseTask(task);
         }
     }
 
