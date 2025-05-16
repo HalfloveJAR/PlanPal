@@ -1,5 +1,7 @@
 package me.kobeplane;
 
+import me.kobeplane.data.TaskboardsData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -28,20 +30,19 @@ public class TaskBoardList {
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         // List existing taskboards
-        File dir = new File("taskboards");
-        if (!dir.exists()) dir.mkdirs();
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
-        if (files != null) {
-            Arrays.sort(files);
-            for (File file : files) {
-                JButton boardButton = new JButton(file.getName());
+        try {
+            java.util.List<TaskboardsData> boards = Main.taskboardsService.getTaskboardsForUser(Main.userData);
+            for (TaskboardsData board : boards) {
+                JButton boardButton = new JButton(board.getName());
                 boardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
                 boardButton.addActionListener(e -> {
-                    TaskManager.getInstance().openTaskboard(file.getName(), frame);
+                    TaskManager.getInstance().openTaskboard(frame, board);
                 });
                 panel.add(boardButton);
                 panel.add(Box.createRigidArea(new Dimension(0, 5)));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // Add "Create New Taskboard" button

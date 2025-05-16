@@ -26,6 +26,10 @@ public class TasksData {
 
     public TasksData() {}
 
+    public int getTaskId() { return taskId; }
+
+    public void setTaskId(int taskId) { this.taskId = taskId; }
+
     public String getName() {
         return name;
     }
@@ -56,6 +60,14 @@ public class TasksData {
 
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public TaskboardsData getTaskboardId() {
+        return taskboardId;
+    }
+
+    public void setTaskboardId(TaskboardsData taskboardId) {
+        this.taskboardId = taskboardId;
     }
 
 }

@@ -1,9 +1,13 @@
 package me.kobeplane;
 
+import me.kobeplane.data.TasksData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public class TaskBoard {
     public final JFrame frame;
@@ -113,10 +117,18 @@ public class TaskBoard {
                     LocalDate dueDate = (dueDateStr.isEmpty() || dueDateStr.equals("yyyy-MM-dd"))
                             ? null
                             : LocalDate.parse(dueDateStr);
-                    TaskManager.getInstance().addTask(text, priority, dueDate, false);
+                    TasksData taskData;
+                    // Save newly added task
+                    Date convertedDate = (dueDate == null)
+                            ? null
+                            : Date.from(dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    taskData = Main.tasksService.addTask(text.trim(), priority.toString(), false, convertedDate, TaskManager.getInstance().currentTaskboard);
+                    TaskManager.getInstance().addTask(taskData.getTaskId(), text, priority, dueDate, false);
                     refreshUI();
                 } catch (DateTimeParseException ex) {
                     JOptionPane.showMessageDialog(frame, "Invalid due date format. Use yyyy-MM-dd.");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
