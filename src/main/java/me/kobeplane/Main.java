@@ -7,6 +7,7 @@ import me.kobeplane.data.*;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -26,19 +27,26 @@ public class Main {
     private static void setupDatabase() {
         boolean useMysql = true;
         if (useMysql) {
-            String address = "localhost";
-            String user = "KMP-MAIN\\SQLEXPRESS";
-            String pass = "";
-            String database = "";
+            String address = dotenv.get("SQL_ADDRESS");
+            String user = dotenv.get("SQL_USER");
+            String pass = dotenv.get("SQL_PASS");
+            String database = "planpal";
             try {
-                //new UserService("jdbc:mysql://localhost;databaseName=planpal;integratedSecurity=true");
-                //userService = new UserService("jdbc:mysql://" + user + ":" + pass + "@" + address + "/" + database);
-                ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:" + System.getProperty("user.dir") + "/planpal.db");
+                String connectionUrl;
+                ConnectionSource connectionSource;
+                if (Stream.of(address, user, pass, database).anyMatch(s -> s == null || s.trim().isEmpty())) {
+                    connectionUrl = "jdbc:sqlite:" + System.getProperty("user.dir") + "/planpal.db";
+                    connectionSource = new JdbcConnectionSource(connectionUrl);
+                } else {
+                    connectionUrl = "jdbc:mysql://" + address + ":3306/" + database;
+                    connectionSource = new JdbcConnectionSource(connectionUrl, user, pass);
+                }
                 userService = new UserService(connectionSource);
                 taskboardsService = new TaskboardsService(connectionSource);
                 tasksService = new TasksService(connectionSource);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                System.out.println("Connection to database failed, you might have incorrectly defined database credentials in your .env file");
+                System.out.println("Error: " + ex.getMessage());
             }
         }
     }
