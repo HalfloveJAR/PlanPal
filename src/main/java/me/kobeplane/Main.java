@@ -52,11 +52,12 @@ public class Main {
         return userData;
     }
 
-    /*static TaskboardsData getValidTaskboardData(String ID) throws SQLException {
-        TaskboardsData taskboardsData = taskboardsService.getTaskboardData(ID);
-        if (taskboardsData == null) {
-            taskboardsService.add
-        }
-    }*/
+    static void logout(JFrame frame) {
+        frame.dispose();
+        userData = null;
+        TaskManager.getInstance().activeTaskBoard = null;
+        TaskManager.getInstance().tasks.clear();
+        SwingUtilities.invokeLater(LoginPage::new);
+    }
 
 }

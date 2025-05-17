@@ -10,7 +10,7 @@ public class TaskboardsData {
     @DatabaseField(canBeNull = false, foreign = true)
     private UserData userId;
 
-    @DatabaseField(canBeNull = false, unique = true)
+    @DatabaseField(canBeNull = false)
     private String name;
 
     public TaskboardsData() {}

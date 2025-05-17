@@ -236,6 +236,17 @@ public class TaskManager {
     public void createNewTaskboardFromList(JFrame frame) {
         String name = JOptionPane.showInputDialog(frame, "Enter a name for the new taskboard:");
 
+        try {
+            for (TaskboardsData taskboardsData : Main.taskboardsService.getTaskboardsForUser(Main.userData)) {
+                if (taskboardsData.getName().equalsIgnoreCase(name.trim())) {
+                    JOptionPane.showMessageDialog(frame, "You already have a taskboard with this name!", "Duplicate Taskboard", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[Debug] User has no taskboards");
+        }
+
         if (name != null && !name.trim().isEmpty()) {
             try {
                 TaskboardsData taskboardsData = Main.taskboardsService.addTaskboard(name.trim(), Main.userData);
