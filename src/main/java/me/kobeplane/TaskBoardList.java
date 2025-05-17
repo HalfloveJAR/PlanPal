@@ -1,13 +1,12 @@
 package me.kobeplane;
 
+import me.kobeplane.data.TaskboardsData;
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Arrays;
 
 public class TaskBoardList {
 
-    JPanel panel;
     JFrame frame;
 
     public TaskBoardList() {
@@ -16,44 +15,55 @@ public class TaskBoardList {
         frame.setSize(500, 500);
         frame.setLocationRelativeTo(null); // Center on screen
 
-        panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // padding
+        // Main layout
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Title
+        // Top panel with the title (pinned)
+        JPanel topPanel = new JPanel();
         JLabel title = new JLabel("Select a Taskboard");
         title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(title);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        topPanel.add(title);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // List existing taskboards
-        File dir = new File("taskboards");
-        if (!dir.exists()) dir.mkdirs();
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
-        if (files != null) {
-            Arrays.sort(files);
-            for (File file : files) {
-                JButton boardButton = new JButton(file.getName());
+        // List panel (scrollable)
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+
+        // Populate taskboard buttons
+        try {
+            java.util.List<TaskboardsData> boards = Main.taskboardsService.getTaskboardsForUser(Main.userData);
+            for (TaskboardsData board : boards) {
+                JButton boardButton = new JButton(board.getName());
                 boardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
                 boardButton.addActionListener(e -> {
-                    TaskManager.getInstance().openTaskboard(file.getName(), frame);
+                    TaskManager.getInstance().openTaskboard(frame, board);
                 });
-                panel.add(boardButton);
-                panel.add(Box.createRigidArea(new Dimension(0, 5)));
+                listPanel.add(boardButton);
+                listPanel.add(Box.createRigidArea(new Dimension(0, 5)));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        // Add "Create New Taskboard" button
+        JScrollPane scrollPane = new JScrollPane(listPanel);
+        scrollPane.setBorder(null);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Bottom panel with "Create New Taskboard" button
+        JPanel bottomPanel = new JPanel();
         JButton newBoardButton = new JButton("Create New Taskboard");
-        newBoardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton logoutButton = new JButton("Logout");
         newBoardButton.addActionListener(e -> {
             TaskManager.getInstance().createNewTaskboardFromList(frame);
         });
-        panel.add(Box.createRigidArea(new Dimension(0, 15)));
-        panel.add(newBoardButton);
+        logoutButton.addActionListener(e -> Main.logout(frame));
+        bottomPanel.add(newBoardButton);
+        bottomPanel.add(logoutButton);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        frame.setContentPane(panel);
+        // Show frame
+        frame.setContentPane(mainPanel);
         frame.setVisible(true);
     }
 }

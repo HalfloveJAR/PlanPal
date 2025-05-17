@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.time.LocalDate;
 
 public class TaskItem {
+    int id;
     String text;
     Priority priority;
     LocalDate dueDate;
@@ -12,7 +13,8 @@ public class TaskItem {
     JLabel label;
     JLabel priorityLabel;
 
-    TaskItem(String text, Priority priority, LocalDate dueDate, JCheckBox checkBox, JLabel label, JLabel priorityLabel, JPanel panel) {
+    TaskItem(int id, String text, Priority priority, LocalDate dueDate, JCheckBox checkBox, JLabel label, JLabel priorityLabel, JPanel panel) {
+        this.id = id;
         this.text = text;
         this.priority = priority;
         this.dueDate = dueDate;
@@ -20,6 +22,10 @@ public class TaskItem {
         this.label = label;
         this.priorityLabel = priorityLabel;
         this.panel = panel;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getText() {
