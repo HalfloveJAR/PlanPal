@@ -1,18 +1,31 @@
+package me.kobeplane;
+
+import me.kobeplane.data.TaskboardsData;
+import me.kobeplane.data.TasksData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TaskManager {
     private static final TaskManager instance = new TaskManager();
+    public static final File TASKBOARD_DIR = new File("taskboards");
     public final ArrayList<TaskItem> tasks = new ArrayList<>();
-    private final String FILE_NAME = "tasks.txt";
+    public TaskboardsData currentTaskboard;
     private JPanel taskPanel;
+
+    public TaskBoard activeTaskBoard = null;
 
     private TaskManager() {}
 
     public static TaskManager getInstance() {
+        if (!TASKBOARD_DIR.exists()) {
+            TASKBOARD_DIR.mkdirs(); // create taskboards directory if it doesn't exist
+        }
         return instance;
     }
 
@@ -24,7 +37,9 @@ public class TaskManager {
         return tasks;
     }
 
-    public void addTask(String text, Priority priority, LocalDate dueDate, boolean done) {
+    private String currentFileName = "tasks.txt";
+
+    public void addTask(int id, String text, Priority priority, LocalDate dueDate, boolean done) {
         JCheckBox checkBox = new JCheckBox();
         checkBox.setSelected(done);
         JLabel label = new JLabel(formatLabelText(text, dueDate));
@@ -49,7 +64,7 @@ public class TaskManager {
         taskItemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         taskItemPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        TaskItem newTask = new TaskItem(text, priority, dueDate, checkBox, label, priorityLabel, taskItemPanel);
+        TaskItem newTask = new TaskItem(id, text, priority, dueDate, checkBox, label, priorityLabel, taskItemPanel);
         tasks.add(newTask);
 
         checkBox.addActionListener(e -> {
@@ -59,6 +74,7 @@ public class TaskManager {
         });
 
         deleteButton.addActionListener(e -> {
+            deleteDatabaseTask(newTask);
             tasks.remove(newTask);
             refreshPanel();
         });
@@ -108,7 +124,27 @@ public class TaskManager {
     }
 
     public void saveTasks() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+        for (TaskItem task : tasks) {
+            boolean isDone = task.checkBox.isSelected();
+            try {
+                Date convertedDate = (task.dueDate == null)
+                        ? null
+                        : Date.from(task.dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                TasksData taskData = new TasksData();
+                taskData.setTaskId(task.id);
+                taskData.setName(task.text.trim());
+                taskData.setPriority(task.priority.toString());
+                taskData.setDone(isDone);
+                taskData.setDueDate(convertedDate);
+                taskData.setTaskboardId(currentTaskboard);
+
+                Main.tasksService.createOrUpdateTask(taskData);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        //
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(TASKBOARD_DIR, currentFileName)))) {
             for (TaskItem task : tasks) {
                 boolean isDone = task.checkBox.isSelected();
                 String dueDateStr = (task.dueDate != null) ? task.dueDate.toString() : "";
@@ -121,20 +157,19 @@ public class TaskManager {
     }
 
     public void loadTasks() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|", 4);
-                if (parts.length == 4) {
-                    boolean done = parts[0].equals("1");
-                    Priority priority = Priority.valueOf(parts[1].toUpperCase());
-                    LocalDate dueDate = parts[2].isEmpty() ? null : LocalDate.parse(parts[2]);
-                    String text = parts[3];
-                    addTask(text, priority, dueDate, done);
-                }
+        // LOAD TASKS FROM DATABASE HERE
+        tasks.clear();
+        try {
+            java.util.List<TasksData> tasksData = Main.tasksService.getTasksForTaskboard(TaskManager.getInstance().currentTaskboard);
+            System.out.println("Tasks = " + tasksData);
+            for (TasksData taskData : tasksData) {
+                LocalDate convertedDate = (taskData.getDueDate() == null)
+                        ? null
+                        : taskData.getDueDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                addTask(taskData.getTaskId(), taskData.getName(), Priority.valueOf(taskData.getPriority()), convertedDate, taskData.getDone());
             }
-        } catch (IOException e) {
-            // File might not exist; no action needed
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -144,6 +179,30 @@ public class TaskManager {
             taskPanel.removeAll();
             taskPanel.revalidate();
             taskPanel.repaint();
+        }
+    }
+
+    public void deleteDatabaseTask(TaskItem task) {
+        try {
+            Date convertedDate = (task.dueDate == null)
+                    ? null
+                    : Date.from(task.dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            TasksData taskData = new TasksData();
+            taskData.setTaskId(task.id);
+            taskData.setName(task.text.trim());
+            taskData.setPriority(task.priority.toString());
+            taskData.setDone(task.checkBox.isSelected());
+            taskData.setDueDate(convertedDate);
+            taskData.setTaskboardId(currentTaskboard);
+            Main.tasksService.deleteTask(taskData);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void deleteAllDatabaseTasks() {
+        for (TaskItem task : tasks) {
+            deleteDatabaseTask(task);
         }
     }
 
@@ -172,6 +231,38 @@ public class TaskManager {
         tasks.clear();
         tasks.addAll(incomplete);
         tasks.addAll(complete);
+    }
+
+    public void createNewTaskboardFromList(JFrame frame) {
+        String name = JOptionPane.showInputDialog(frame, "Enter a name for the new taskboard:");
+
+        try {
+            for (TaskboardsData taskboardsData : Main.taskboardsService.getTaskboardsForUser(Main.userData)) {
+                if (taskboardsData.getName().equalsIgnoreCase(name.trim())) {
+                    JOptionPane.showMessageDialog(frame, "You already have a taskboard with this name!", "Duplicate Taskboard", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[Debug] User has no taskboards");
+        }
+
+        if (name != null && !name.trim().isEmpty()) {
+            try {
+                TaskboardsData taskboardsData = Main.taskboardsService.addTaskboard(name.trim(), Main.userData);
+                openTaskboard(frame, taskboardsData);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void openTaskboard(JFrame frame, TaskboardsData taskboardData) {
+        frame.dispose();
+        currentFileName = taskboardData.getName();
+        currentTaskboard = taskboardData;
+        // Opens the new Taskboard;
+        activeTaskBoard = new TaskBoard();
     }
 
     private int priorityValue(Priority priority) {

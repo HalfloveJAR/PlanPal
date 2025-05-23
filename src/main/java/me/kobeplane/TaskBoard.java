@@ -1,12 +1,18 @@
+package me.kobeplane;
+
+import me.kobeplane.data.TasksData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public class TaskBoard {
-    private final JFrame frame;
+    public final JFrame frame;
     private final JPanel taskPanel;
-    private final JButton addButton, saveButton, loadButton, clearButton;
+    private final JButton addButton, saveButton, clearButton, returnToListButton, logoutButton;
     private final JScrollPane scrollPane;
     private final JPanel controlPanel, inputPanel;
 
@@ -21,16 +27,21 @@ public class TaskBoard {
 
         addButton = new JButton("Add Task");
         saveButton = new JButton("Save Tasks");
-        loadButton = new JButton("Load Tasks");
+        //loadButton = new JButton("Load Tasks");
         clearButton = new JButton("Clear Taskboard");
+        returnToListButton = new JButton("Return to List");
+        logoutButton = new JButton("Logout");
+
 
         inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(addButton, BorderLayout.CENTER);
 
         controlPanel = new JPanel();
         controlPanel.add(saveButton);
-        controlPanel.add(loadButton);
+        //controlPanel.add(loadButton);
         controlPanel.add(clearButton);
+        controlPanel.add(returnToListButton);
+        controlPanel.add(logoutButton);
 
         frame.getContentPane().add(inputPanel, BorderLayout.NORTH);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -38,16 +49,25 @@ public class TaskBoard {
 
         addButton.addActionListener(e -> showAddTaskDialog());
         saveButton.addActionListener(e -> TaskManager.getInstance().saveTasks());
-        loadButton.addActionListener(e -> {
+        /*loadButton.addActionListener(e -> {
             TaskManager.getInstance().clearTasks();
             taskPanel.removeAll();
             TaskManager.getInstance().loadTasks();
             refreshUI();
-        });
+        });*/
         clearButton.addActionListener(e -> {
+            TaskManager.getInstance().deleteAllDatabaseTasks();
             TaskManager.getInstance().clearTasks();
             refreshUI();
         });
+        returnToListButton.addActionListener(e -> {
+            frame.dispose();
+            TaskManager.getInstance().activeTaskBoard = null;
+            TaskManager.getInstance().tasks.clear();
+            SwingUtilities.invokeLater(TaskBoardList::new);
+        });
+        logoutButton.addActionListener(e -> Main.logout(frame));
+
 
         TaskManager.getInstance().setTaskPanel(taskPanel);
         TaskManager.getInstance().loadTasks();
@@ -101,16 +121,24 @@ public class TaskBoard {
                     LocalDate dueDate = (dueDateStr.isEmpty() || dueDateStr.equals("yyyy-MM-dd"))
                             ? null
                             : LocalDate.parse(dueDateStr);
-                    TaskManager.getInstance().addTask(text, priority, dueDate, false);
+                    TasksData taskData;
+                    // Save newly added task
+                    Date convertedDate = (dueDate == null)
+                            ? null
+                            : Date.from(dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    taskData = Main.tasksService.addTask(text.trim(), priority.toString(), false, convertedDate, TaskManager.getInstance().currentTaskboard);
+                    TaskManager.getInstance().addTask(taskData.getTaskId(), text, priority, dueDate, false);
                     refreshUI();
                 } catch (DateTimeParseException ex) {
                     JOptionPane.showMessageDialog(frame, "Invalid due date format. Use yyyy-MM-dd.");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
     }
 
-    private void refreshUI() {
+    public void refreshUI() {
         taskPanel.removeAll();
         TaskManager.getInstance().sortTasks();
 
