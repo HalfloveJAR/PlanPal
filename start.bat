@@ -1,0 +1,1 @@
+java -jar planpal-uber-jar.jar
